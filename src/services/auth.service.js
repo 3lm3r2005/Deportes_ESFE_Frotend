@@ -2,11 +2,9 @@ import api from './api';
 
 export const login = async (email, password) => {
   const response = await api.post('/auth/login', { email, password });
-  const { token, usuario } = response.data;
+  const { usuario } = response.data;
 
-  localStorage.setItem('token', token);
   localStorage.setItem('usuario', JSON.stringify(usuario));
-
   return usuario;
 };
 
@@ -15,9 +13,12 @@ export const registrar = async (datos) => {
   return data;
 };
 
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('usuario');
+export const logout = async () => {
+  try {
+    await api.post('/auth/logout');
+  } finally {
+    localStorage.removeItem('usuario');
+  }
 };
 
 export const getUsuarioActual = () => {
@@ -26,8 +27,9 @@ export const getUsuarioActual = () => {
 };
 
 export const estaAutenticado = () => {
-  return !!localStorage.getItem('token');
+  return !!localStorage.getItem('usuario');
 };
+
 export const actualizarUsuarioLocal = (datosNuevos) => {
   const usuarioActual = getUsuarioActual();
   const usuarioActualizado = { ...usuarioActual, ...datosNuevos };
