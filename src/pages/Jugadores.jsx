@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, TablePagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import JugadorTable from '../components/jugadores/JugadorTable';
 import JugadorDialog from '../components/jugadores/JugadorDialog';
@@ -7,7 +7,7 @@ import InscripcionTable from '../components/jugadores/InscripcionTable';
 import InscripcionJugadorDialog from '../components/jugadores/InscripcionJugadorDialog';
 import Loading from '../components/Loading';
 import {
-  listarJugadores, crearJugador, actualizarJugador, eliminarJugador
+  listarJugadores, listarJugadoresPaginado, crearJugador, actualizarJugador, eliminarJugador
 } from '../services/jugador.service';
 import { listarEquipos, actualizarEquipo } from '../services/equipo.service';
 import { getUsuarioActual } from '../services/auth.service';
@@ -23,7 +23,17 @@ export default function Jugadores() {
   const [miEquipo, setMiEquipo] = useState(null);
   const [cargando, setCargando] = useState(true);
 
-  const cargarJugadores = async () => {
+  const [pagina, setPagina] = useState(0);
+  const [filasPorPagina, setFilasPorPagina] = useState(10);
+  const [totalJugadores, setTotalJugadores] = useState(0);
+
+  const cargarJugadoresTabla = async () => {
+    const data = await listarJugadoresPaginado(pagina + 1, filasPorPagina);
+    setJugadores(data.jugadores);
+    setTotalJugadores(data.total);
+  };
+
+  const cargarJugadoresDelegado = async () => {
     const data = await listarJugadores();
     setJugadores(data);
   };
@@ -35,14 +45,23 @@ export default function Jugadores() {
 
   useEffect(() => {
     const cargarDatos = async () => {
-      await cargarJugadores();
-      if (esDelegado) await cargarMiEquipo();
+      if (esDelegado) {
+        await cargarJugadoresDelegado();
+        await cargarMiEquipo();
+      } else {
+        await cargarJugadoresTabla();
+      }
       setCargando(false);
     };
     cargarDatos();
-  }, []);
+  }, [pagina, filasPorPagina]);
 
-  // ---- Flujo ADMIN ----
+  const handleCambiarPagina = (evento, nuevaPagina) => setPagina(nuevaPagina);
+  const handleCambiarFilasPorPagina = (evento) => {
+    setFilasPorPagina(parseInt(evento.target.value, 10));
+    setPagina(0);
+  };
+
   const handleNuevo = () => {
     setJugadorEditando(null);
     setDialogAbierto(true);
@@ -60,17 +79,16 @@ export default function Jugadores() {
       await crearJugador(datos);
     }
     setDialogAbierto(false);
-    cargarJugadores();
+    cargarJugadoresTabla();
   };
 
   const handleEliminar = async (jugador) => {
     if (confirm(`¿Eliminar al jugador "${jugador.nombre} ${jugador.apellido}"?`)) {
       await eliminarJugador(jugador._id);
-      cargarJugadores();
+      cargarJugadoresTabla();
     }
   };
 
-  // ---- Flujo DELEGADO ----
   const handleInscribir = async (datos) => {
     const { dorsal, ...datosJugador } = datos;
     const nuevoJugador = await crearJugador(datosJugador);
@@ -87,7 +105,7 @@ export default function Jugadores() {
 
     await actualizarEquipo(miEquipo._id, { jugadores_inscritos: nuevaLista });
     setDialogAbierto(false);
-    await cargarJugadores();
+    await cargarJugadoresDelegado();
     await cargarMiEquipo();
   };
 
@@ -95,13 +113,12 @@ export default function Jugadores() {
     if (!confirm('¿Quitar a este jugador de tu equipo?')) return;
     const nuevaLista = miEquipo.jugadores_inscritos.filter((j) => j.jugador_id !== jugadorId);
     await actualizarEquipo(miEquipo._id, { jugadores_inscritos: nuevaLista });
-    await cargarJugadores();
+    await cargarJugadoresDelegado();
     await cargarMiEquipo();
   };
 
   if (cargando) return <Loading />;
 
-  // ---- Vista DELEGADO ----
   if (esDelegado) {
     return (
       <Box>
@@ -125,7 +142,6 @@ export default function Jugadores() {
     );
   }
 
-  // ---- Vista ADMIN / ÁRBITRO ----
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -142,6 +158,16 @@ export default function Jugadores() {
         onEliminar={handleEliminar}
         puedeEditar={esAdmin}
         puedeEliminar={esAdmin}
+      />
+      <TablePagination
+        component="div"
+        count={totalJugadores}
+        page={pagina}
+        onPageChange={handleCambiarPagina}
+        rowsPerPage={filasPorPagina}
+        onRowsPerPageChange={handleCambiarFilasPorPagina}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        labelRowsPerPage="Filas por página:"
       />
       {esAdmin && (
         <JugadorDialog

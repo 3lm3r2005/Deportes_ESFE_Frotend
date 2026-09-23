@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
 import { inscripcionJugadorSchema } from '../../schemas/inscripcionJugador.schema';
@@ -11,6 +11,7 @@ export default function InscripcionJugadorDialog({ open, onClose, onGuardar }) {
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
   } = useForm({
@@ -42,10 +43,20 @@ export default function InscripcionJugadorDialog({ open, onClose, onGuardar }) {
           {...register('carne')}
           error={!!errors.carne} helperText={errors.carne?.message}
         />
-        <TextField
-          label="Teléfono" fullWidth margin="normal"
-          {...register('telefono')}
-          error={!!errors.telefono} helperText={errors.telefono?.message}
+        <Controller
+          name="telefono"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Teléfono" fullWidth margin="normal"
+              onChange={(e) => {
+                const soloNumeros = e.target.value.replace(/\D/g, '').slice(0, 8);
+                field.onChange(soloNumeros);
+              }}
+              error={!!errors.telefono} helperText={errors.telefono?.message}
+            />
+          )}
         />
         <TextField
           label="Posición" fullWidth margin="normal"

@@ -5,6 +5,11 @@ export const listarUsuarios = async () => {
   return data;
 };
 
+export const listarUsuariosPaginado = async (pagina, limite) => {
+  const { data } = await api.get(`/usuarios?page=${pagina}&limit=${limite}`);
+  return data;
+};
+
 export const crearUsuario = async (usuario) => {
   const { data } = await api.post('/usuarios', usuario);
   return data;

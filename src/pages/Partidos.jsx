@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography, Tabs, Tab } from '@mui/material';
+import { Box, Button, Typography, Tabs, Tab, TablePagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import PartidoTable from '../components/partidos/PartidoTable';
 import PartidoDialog from '../components/partidos/PartidoDialog';
 import ResultadoDialog from '../components/partidos/ResultadoDialog';
 import Loading from '../components/Loading';
 import {
-  listarPartidos, crearPartido, actualizarPartido, eliminarPartido
+  listarPartidosPaginado, crearPartido, actualizarPartido, eliminarPartido
 } from '../services/partido.service';
 import { listarTorneos } from '../services/torneo.service';
 import { listarEquipos } from '../services/equipo.service';
@@ -27,16 +27,17 @@ export default function Partidos() {
   const [cargando, setCargando] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
+  const [pagina, setPagina] = useState(0);
+  const [filasPorPagina, setFilasPorPagina] = useState(10);
+  const [totalPartidos, setTotalPartidos] = useState(0);
+
   const [dialogAbierto, setDialogAbierto] = useState(false);
   const [partidoEditando, setPartidoEditando] = useState(null);
   const [resultadoAbierto, setResultadoAbierto] = useState(false);
   const [partidoResultado, setPartidoResultado] = useState(null);
 
-  const cargarTodo = async () => {
-    const [p, t, e, j] = await Promise.all([
-      listarPartidos(), listarTorneos(), listarEquipos(), listarJugadores(),
-    ]);
-    setPartidos(p);
+  const cargarListasBase = async () => {
+    const [t, e, j] = await Promise.all([listarTorneos(), listarEquipos(), listarJugadores()]);
     setTorneos(t);
     setEquipos(e);
     setJugadores(j);
@@ -47,9 +48,34 @@ export default function Partidos() {
     }
   };
 
+  const cargarPartidosTabla = async () => {
+    const data = await listarPartidosPaginado(pagina + 1, filasPorPagina, filtroEstado);
+    setPartidos(data.partidos);
+    setTotalPartidos(data.total);
+  };
+
   useEffect(() => {
-    cargarTodo().finally(() => setCargando(false));
+    const cargarInicial = async () => {
+      await Promise.all([cargarListasBase(), cargarPartidosTabla()]);
+      setCargando(false);
+    };
+    cargarInicial();
   }, []);
+
+  useEffect(() => {
+    if (cargando) return;
+    cargarPartidosTabla();
+  }, [pagina, filasPorPagina, filtroEstado]);
+
+  const handleCambiarPagina = (evento, nuevaPagina) => setPagina(nuevaPagina);
+  const handleCambiarFilasPorPagina = (evento) => {
+    setFilasPorPagina(parseInt(evento.target.value, 10));
+    setPagina(0);
+  };
+  const handleCambiarFiltro = (evento, nuevoValor) => {
+    setFiltroEstado(nuevoValor);
+    setPagina(0);
+  };
 
   const handleNuevo = () => {
     setPartidoEditando(null);
@@ -68,13 +94,13 @@ export default function Partidos() {
       await crearPartido(datos);
     }
     setDialogAbierto(false);
-    cargarTodo();
+    cargarPartidosTabla();
   };
 
   const handleEliminar = async (partido) => {
     if (confirm('¿Eliminar este partido?')) {
       await eliminarPartido(partido._id);
-      cargarTodo();
+      cargarPartidosTabla();
     }
   };
 
@@ -86,12 +112,8 @@ export default function Partidos() {
   const handleGuardarResultado = async (datos) => {
     await actualizarPartido(partidoResultado._id, datos);
     setResultadoAbierto(false);
-    cargarTodo();
+    cargarPartidosTabla();
   };
-
-  const partidosFiltrados = filtroEstado === 'todos'
-    ? partidos
-    : partidos.filter((p) => p.estado === filtroEstado);
 
   if (cargando) return <Loading />;
 
@@ -106,7 +128,7 @@ export default function Partidos() {
         )}
       </Box>
 
-      <Tabs value={filtroEstado} onChange={(e, val) => setFiltroEstado(val)} sx={{ mb: 2 }}>
+      <Tabs value={filtroEstado} onChange={handleCambiarFiltro} sx={{ mb: 2 }}>
         <Tab label="Todos" value="todos" />
         <Tab label="Programados" value="programado" />
         <Tab label="En juego" value="en_juego" />
@@ -114,7 +136,7 @@ export default function Partidos() {
       </Tabs>
 
       <PartidoTable
-        partidos={partidosFiltrados}
+        partidos={partidos}
         equipos={equipos}
         torneos={torneos}
         onEditar={handleEditar}
@@ -123,6 +145,17 @@ export default function Partidos() {
         puedeEditar={esAdmin}
         puedeEliminar={esAdmin}
         puedeRegistrar={esArbitro}
+      />
+
+      <TablePagination
+        component="div"
+        count={totalPartidos}
+        page={pagina}
+        onPageChange={handleCambiarPagina}
+        rowsPerPage={filasPorPagina}
+        onRowsPerPageChange={handleCambiarFilasPorPagina}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        labelRowsPerPage="Filas por página:"
       />
 
       {esAdmin && (

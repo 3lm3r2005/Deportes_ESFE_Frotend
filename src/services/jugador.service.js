@@ -4,6 +4,10 @@ export const listarJugadores = async () => {
   const { data } = await api.get('/jugadores');
   return data;
 };
+export const listarJugadoresPaginado = async (pagina, limite) => {
+  const { data } = await api.get(`/jugadores?page=${pagina}&limit=${limite}`);
+  return data;
+};
 
 export const crearJugador = async (jugador) => {
   const { data } = await api.post('/jugadores', jugador);

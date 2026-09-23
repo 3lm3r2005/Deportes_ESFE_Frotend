@@ -4,6 +4,10 @@ export const listarEquipos = async () => {
   const { data } = await api.get('/equipos');
   return data;
 };
+export const listarEquiposPaginado = async (pagina, limite) => {
+  const { data } = await api.get(`/equipos?page=${pagina}&limit=${limite}`);
+  return data;
+};
 
 export const crearEquipo = async (equipo) => {
   const { data } = await api.post('/equipos', equipo);

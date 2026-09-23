@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
 import { jugadorSchema } from '../../schemas/jugador.schema';
 import ImageUpload from '../ImageUpload';
 
@@ -68,25 +68,25 @@ export default function JugadorDialog({ open, onClose, onGuardar, jugador }) {
           {...register('carne')}
           error={!!errors.carne} helperText={errors.carne?.message}
         />
-        <TextField
-          label="Teléfono" fullWidth margin="normal"
-          {...register('telefono')}
-          error={!!errors.telefono} helperText={errors.telefono?.message}
-        />
         <Controller
-          name="posicion"
+          name="telefono"
           control={control}
           render={({ field }) => (
             <TextField
-              {...field} select label="Posición" fullWidth margin="normal"
-              error={!!errors.posicion} helperText={errors.posicion?.message}
-            >
-              <MenuItem value="Portero">Portero</MenuItem>
-              <MenuItem value="Defensa">Defensa</MenuItem>
-              <MenuItem value="Mediocampista">Mediocampista</MenuItem>
-              <MenuItem value="Delantero">Delantero</MenuItem>
-            </TextField>
+              {...field}
+              label="Teléfono" fullWidth margin="normal"
+              onChange={(e) => {
+                const soloNumeros = e.target.value.replace(/\D/g, '').slice(0, 8);
+                field.onChange(soloNumeros);
+              }}
+              error={!!errors.telefono} helperText={errors.telefono?.message}
+            />
           )}
+        />
+        <TextField
+          label="Posición" fullWidth margin="normal"
+          {...register('posicion')}
+          error={!!errors.posicion} helperText={errors.posicion?.message}
         />
       </DialogContent>
       <DialogActions>

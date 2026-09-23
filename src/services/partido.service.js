@@ -5,6 +5,12 @@ export const listarPartidos = async () => {
   return data;
 };
 
+export const listarPartidosPaginado = async (pagina, limite, estado) => {
+  const filtroEstado = estado && estado !== 'todos' ? `&estado=${estado}` : '';
+  const { data } = await api.get(`/partidos?page=${pagina}&limit=${limite}${filtroEstado}`);
+  return data;
+};
+
 export const crearPartido = async (partido) => {
   const { data } = await api.post('/partidos', partido);
   return data;

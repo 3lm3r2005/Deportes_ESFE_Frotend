@@ -5,6 +5,9 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Button, MenuItem
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import dayjs from 'dayjs';
 import { partidoSchema } from '../../schemas/partido.schema';
 
 const valoresPorDefecto = {
@@ -96,17 +99,41 @@ export default function PartidoDialog({ open, onClose, onGuardar, partido, torne
             </TextField>
           )}
         />
-        <TextField
-          label="Fecha" type="date" fullWidth margin="normal"
-          InputLabelProps={{ shrink: true }}
-          {...register('fecha')}
-          error={!!errors.fecha} helperText={errors.fecha?.message}
+        <Controller
+          name="fecha"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              label="Fecha"
+              value={field.value ? dayjs(field.value) : null}
+              onChange={(nuevaFecha) => field.onChange(nuevaFecha ? nuevaFecha.format('YYYY-MM-DD') : '')}
+              format="DD/MM/YYYY"
+              slotProps={{
+                textField: {
+                  fullWidth: true, margin: 'normal',
+                  error: !!errors.fecha, helperText: errors.fecha?.message,
+                },
+              }}
+            />
+          )}
         />
-        <TextField
-          label="Hora" type="time" fullWidth margin="normal"
-          InputLabelProps={{ shrink: true }}
-          {...register('hora')}
-          error={!!errors.hora} helperText={errors.hora?.message}
+        <Controller
+          name="hora"
+          control={control}
+          render={({ field }) => (
+            <TimePicker
+              label="Hora"
+              value={field.value ? dayjs(`2000-01-01T${field.value}`) : null}
+              onChange={(nuevaHora) => field.onChange(nuevaHora ? nuevaHora.format('HH:mm') : '')}
+              ampm={false}
+              slotProps={{
+                textField: {
+                  fullWidth: true, margin: 'normal',
+                  error: !!errors.hora, helperText: errors.hora?.message,
+                },
+              }}
+            />
+          )}
         />
       </DialogContent>
       <DialogActions>

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, TablePagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UsuarioTable from '../components/usuarios/UsuarioTable';
 import UsuarioDialog from '../components/usuarios/UsuarioDialog';
 import Loading from '../components/Loading';
 import {
-  listarUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario
+  listarUsuariosPaginado, crearUsuario, actualizarUsuario, eliminarUsuario
 } from '../services/usuario.service';
 
 export default function Usuarios() {
@@ -14,14 +14,25 @@ export default function Usuarios() {
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [cargando, setCargando] = useState(true);
 
+  const [pagina, setPagina] = useState(0);
+  const [filasPorPagina, setFilasPorPagina] = useState(10);
+  const [totalUsuarios, setTotalUsuarios] = useState(0);
+
   const cargarUsuarios = async () => {
-    const data = await listarUsuarios();
-    setUsuarios(data);
+    const data = await listarUsuariosPaginado(pagina + 1, filasPorPagina);
+    setUsuarios(data.usuarios);
+    setTotalUsuarios(data.total);
   };
 
   useEffect(() => {
     cargarUsuarios().finally(() => setCargando(false));
-  }, []);
+  }, [pagina, filasPorPagina]);
+
+  const handleCambiarPagina = (evento, nuevaPagina) => setPagina(nuevaPagina);
+  const handleCambiarFilasPorPagina = (evento) => {
+    setFilasPorPagina(parseInt(evento.target.value, 10));
+    setPagina(0);
+  };
 
   const handleNuevo = () => {
     setUsuarioEditando(null);
@@ -61,6 +72,16 @@ export default function Usuarios() {
         </Button>
       </Box>
       <UsuarioTable usuarios={usuarios} onEditar={handleEditar} onEliminar={handleEliminar} />
+      <TablePagination
+        component="div"
+        count={totalUsuarios}
+        page={pagina}
+        onPageChange={handleCambiarPagina}
+        rowsPerPage={filasPorPagina}
+        onRowsPerPageChange={handleCambiarFilasPorPagina}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        labelRowsPerPage="Filas por página:"
+      />
       <UsuarioDialog
         open={dialogAbierto}
         onClose={() => setDialogAbierto(false)}
