@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, MenuItem
+  TextField, Button, MenuItem, Alert
 } from '@mui/material';
 import { equipoSchema } from '../../schemas/equipo.schema';
 import { listarUsuarios } from '../../services/usuario.service';
@@ -23,6 +23,7 @@ export default function EquipoDialog({ open, onClose, onGuardar, equipo, equipos
 
   const [delegados, setDelegados] = useState([]);
   const [logoUrl, setLogoUrl] = useState('');
+  const [errorApi, setErrorApi] = useState('');
 
   const {
     register,
@@ -69,16 +70,27 @@ export default function EquipoDialog({ open, onClose, onGuardar, equipo, equipos
       );
       setLogoUrl('');
     }
+    setErrorApi('');
   }, [equipo, open, reset]);
 
-  const handleGuardarInterno = (datos) => {
-    onGuardar({ ...datos, logo_url: logoUrl });
+  const handleGuardarInterno = async (datos) => {
+    setErrorApi('');
+    try {
+      await onGuardar({ ...datos, logo_url: logoUrl });
+    } catch (error) {
+      setErrorApi(error.response?.data?.error || 'Error al guardar el equipo');
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{equipo ? 'Editar equipo' : 'Nuevo equipo'}</DialogTitle>
       <DialogContent>
+        {errorApi && (
+          <Alert severity="error" sx={{ my: 1.5 }}>
+            {errorApi}
+          </Alert>
+        )}
         <ImageUpload
           valor={logoUrl}
           onCambiar={setLogoUrl}

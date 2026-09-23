@@ -137,6 +137,9 @@ export default function Jugadores() {
           open={dialogAbierto}
           onClose={() => setDialogAbierto(false)}
           onGuardar={handleInscribir}
+          dorsalesOcupados={(miEquipo?.jugadores_inscritos || [])
+            .filter((j) => j.estado !== 'baja')
+            .map((j) => Number(j.dorsal))}
         />
       </Box>
     );

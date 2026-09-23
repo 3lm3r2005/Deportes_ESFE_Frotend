@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Alert } from '@mui/material';
 import { publicacionSchema } from '../../schemas/publicacion.schema';
 import ImageUpload from '../ImageUpload';
 
@@ -9,6 +9,7 @@ const valoresPorDefecto = { titulo: '', mensaje: '' };
 
 export default function PublicacionDialog({ open, onClose, onGuardar, publicacion }) {
   const [imagenUrl, setImagenUrl] = useState('');
+  const [errorApi, setErrorApi] = useState('');
 
   const {
     register,
@@ -28,16 +29,27 @@ export default function PublicacionDialog({ open, onClose, onGuardar, publicacio
       reset(valoresPorDefecto);
       setImagenUrl('');
     }
+    setErrorApi('');
   }, [publicacion, open, reset]);
 
-  const handleGuardarInterno = (datos) => {
-    onGuardar({ ...datos, imagen_url: imagenUrl });
+  const handleGuardarInterno = async (datos) => {
+    setErrorApi('');
+    try {
+      await onGuardar({ ...datos, imagen_url: imagenUrl });
+    } catch (error) {
+      setErrorApi(error.response?.data?.error || 'Error al guardar la publicación');
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{publicacion ? 'Editar publicación' : 'Nueva publicación'}</DialogTitle>
       <DialogContent>
+        {errorApi && (
+          <Alert severity="error" sx={{ my: 1.5 }}>
+            {errorApi}
+          </Alert>
+        )}
         <ImageUpload
           valor={imagenUrl}
           onCambiar={setImagenUrl}

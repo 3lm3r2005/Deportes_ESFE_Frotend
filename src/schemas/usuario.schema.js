@@ -10,7 +10,7 @@ const camposBase = {
     .min(2, 'El apellido debe tener al menos 2 caracteres')
     .regex(soloLetras, 'El apellido solo puede contener letras'),
   email: z.string().email('Correo electrónico inválido'),
-  rol: z.enum(['admin', 'arbitro', 'delegado'], {
+  rol: z.enum(['admin', 'arbitro', 'delegado', 'aficionado'], {
     errorMap: () => ({ message: 'Selecciona un rol válido' }),
   }),
   estado: z.enum(['activo', 'inactivo']),

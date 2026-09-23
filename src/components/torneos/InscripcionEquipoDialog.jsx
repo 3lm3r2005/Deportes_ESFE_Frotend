@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem, Alert } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { getUsuarioActual } from '../../services/auth.service';
@@ -8,6 +8,7 @@ import { getUsuarioActual } from '../../services/auth.service';
 export default function InscripcionEquipoDialog({ open, onClose, onGuardar, torneo, equipos }) {
   const usuario = getUsuarioActual();
   const esDelegado = usuario?.rol === 'delegado';
+  const [errorApi, setErrorApi] = useState('');
 
   const idsYaInscritos = (torneo?.equipos_inscritos || [])
     .filter((e) => e.estado === 'inscrito')
@@ -26,14 +27,39 @@ export default function InscripcionEquipoDialog({ open, onClose, onGuardar, torn
       fecha_inscripcion: new Date().toISOString().slice(0, 10),
       firma: '',
     });
+    setErrorApi('');
   }, [open, torneo]);
 
   const yaEstaInscritoMiEquipo = esDelegado && miEquipo && idsYaInscritos.includes(miEquipo._id);
+  const torneoFinalizado = torneo?.estado === 'finalizado';
+
+  const handleGuardarInterno = async (datos) => {
+    setErrorApi('');
+    if (torneoFinalizado) {
+      setErrorApi('No se pueden inscribir equipos en un torneo que ya ha finalizado');
+      return;
+    }
+    try {
+      await onGuardar(datos);
+    } catch (error) {
+      setErrorApi(error.response?.data?.error || 'Error al inscribir el equipo');
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Inscribir equipo en {torneo?.nombre}</DialogTitle>
       <DialogContent>
+        {errorApi && (
+          <Alert severity="error" sx={{ my: 1.5 }}>
+            {errorApi}
+          </Alert>
+        )}
+        {torneoFinalizado && (
+          <Alert severity="warning" sx={{ my: 1.5 }}>
+            Este torneo ya está finalizado. No se permiten nuevas inscripciones.
+          </Alert>
+        )}
         {esDelegado ? (
           yaEstaInscritoMiEquipo ? (
             <p>Tu equipo ya está inscrito en este torneo.</p>
@@ -74,8 +100,8 @@ export default function InscripcionEquipoDialog({ open, onClose, onGuardar, torn
         <Button onClick={onClose}>Cancelar</Button>
         <Button
           variant="contained"
-          disabled={esDelegado && (!miEquipo || yaEstaInscritoMiEquipo)}
-          onClick={handleSubmit(onGuardar)}
+          disabled={(esDelegado && (!miEquipo || yaEstaInscritoMiEquipo)) || torneoFinalizado}
+          onClick={handleSubmit(handleGuardarInterno)}
         >
           Inscribir
         </Button>

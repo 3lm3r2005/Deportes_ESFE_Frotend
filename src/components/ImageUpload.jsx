@@ -12,6 +12,22 @@ export default function ImageUpload({ valor, onCambiar, label = 'Subir imagen', 
     if (!archivo) return;
 
     setError('');
+
+    // Validar tipo de archivo
+    if (!archivo.type.startsWith('image/')) {
+      setError('Solo se permiten archivos de imagen (JPG, PNG, WEBP)');
+      e.target.value = '';
+      return;
+    }
+
+    // Validar tamaño máximo (5 MB)
+    const MAX_MB = 5;
+    if (archivo.size > MAX_MB * 1024 * 1024) {
+      setError(`La imagen no debe superar los ${MAX_MB} MB de peso`);
+      e.target.value = '';
+      return;
+    }
+
     setSubiendo(true);
     try {
       const url = await subirImagen(archivo);
@@ -20,6 +36,7 @@ export default function ImageUpload({ valor, onCambiar, label = 'Subir imagen', 
       setError('No se pudo subir la imagen, intenta de nuevo');
     } finally {
       setSubiendo(false);
+      e.target.value = '';
     }
   };
 

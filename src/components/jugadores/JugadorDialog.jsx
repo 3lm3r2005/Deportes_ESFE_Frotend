@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem, Alert } from '@mui/material';
 import { jugadorSchema } from '../../schemas/jugador.schema';
 import ImageUpload from '../ImageUpload';
 
@@ -9,8 +9,16 @@ const valoresPorDefecto = {
   nombre: '', apellido: '', carne: '', telefono: '', posicion: '',
 };
 
+const POSICIONES_FUTBOL = [
+  'Portero',
+  'Defensa',
+  'Mediocampista',
+  'Delantero',
+];
+
 export default function JugadorDialog({ open, onClose, onGuardar, jugador }) {
   const [fotoUrl, setFotoUrl] = useState('');
+  const [errorApi, setErrorApi] = useState('');
 
   const {
     register,
@@ -37,16 +45,28 @@ export default function JugadorDialog({ open, onClose, onGuardar, jugador }) {
       reset(valoresPorDefecto);
       setFotoUrl('');
     }
+    setErrorApi('');
   }, [jugador, open, reset]);
 
-  const handleGuardarInterno = (datos) => {
-    onGuardar({ ...datos, foto_url: fotoUrl });
+  const handleGuardarInterno = async (datos) => {
+    setErrorApi('');
+    try {
+      await onGuardar({ ...datos, foto_url: fotoUrl });
+    } catch (error) {
+      setErrorApi(error.response?.data?.error || 'Error al guardar el jugador');
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{jugador ? 'Editar jugador' : 'Nuevo jugador'}</DialogTitle>
       <DialogContent>
+        {errorApi && (
+          <Alert severity="error" sx={{ my: 1.5 }}>
+            {errorApi}
+          </Alert>
+        )}
+
         <ImageUpload
           valor={fotoUrl}
           onCambiar={setFotoUrl}
@@ -63,10 +83,20 @@ export default function JugadorDialog({ open, onClose, onGuardar, jugador }) {
           {...register('apellido')}
           error={!!errors.apellido} helperText={errors.apellido?.message}
         />
-        <TextField
-          label="Carné" fullWidth margin="normal"
-          {...register('carne')}
-          error={!!errors.carne} helperText={errors.carne?.message}
+        <Controller
+          name="carne"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Carné (ej. PO2026, PO25001)"
+              fullWidth
+              margin="normal"
+              onChange={(e) => field.onChange(e.target.value.toUpperCase().trim())}
+              error={!!errors.carne}
+              helperText={errors.carne?.message}
+            />
+          )}
         />
         <Controller
           name="telefono"
@@ -83,10 +113,26 @@ export default function JugadorDialog({ open, onClose, onGuardar, jugador }) {
             />
           )}
         />
-        <TextField
-          label="Posición" fullWidth margin="normal"
-          {...register('posicion')}
-          error={!!errors.posicion} helperText={errors.posicion?.message}
+        <Controller
+          name="posicion"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              select
+              label="Posición"
+              fullWidth
+              margin="normal"
+              error={!!errors.posicion}
+              helperText={errors.posicion?.message}
+            >
+              {POSICIONES_FUTBOL.map((pos) => (
+                <MenuItem key={pos} value={pos}>
+                  {pos}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
         />
       </DialogContent>
       <DialogActions>

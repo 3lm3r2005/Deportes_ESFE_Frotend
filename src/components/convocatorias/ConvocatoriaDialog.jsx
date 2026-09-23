@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, MenuItem
+  TextField, Button, MenuItem, Alert
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
@@ -14,6 +14,8 @@ const valoresPorDefecto = {
 };
 
 export default function ConvocatoriaDialog({ open, onClose, onGuardar, convocatoria, torneos }) {
+  const [errorApi, setErrorApi] = useState('');
+
   const {
     register,
     handleSubmit,
@@ -38,12 +40,27 @@ export default function ConvocatoriaDialog({ open, onClose, onGuardar, convocato
     } else {
       reset(valoresPorDefecto);
     }
+    setErrorApi('');
   }, [convocatoria, open, reset]);
+
+  const handleGuardarInterno = async (datos) => {
+    setErrorApi('');
+    try {
+      await onGuardar(datos);
+    } catch (error) {
+      setErrorApi(error.response?.data?.error || 'Error al guardar la convocatoria');
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{convocatoria ? 'Editar convocatoria' : 'Nueva convocatoria'}</DialogTitle>
       <DialogContent>
+        {errorApi && (
+          <Alert severity="error" sx={{ my: 1.5 }}>
+            {errorApi}
+          </Alert>
+        )}
         <Controller
           name="torneo_id" control={control}
           render={({ field }) => (
@@ -110,7 +127,7 @@ export default function ConvocatoriaDialog({ open, onClose, onGuardar, convocato
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button variant="contained" onClick={handleSubmit(onGuardar)}>Guardar</Button>
+        <Button variant="contained" onClick={handleSubmit(handleGuardarInterno)}>Guardar</Button>
       </DialogActions>
     </Dialog>
   );
