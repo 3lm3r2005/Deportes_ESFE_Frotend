@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 import ConvocatoriaTable from '../components/convocatorias/ConvocatoriaTable';
 import ConvocatoriaDialog from '../components/convocatorias/ConvocatoriaDialog';
 import Loading from '../components/Loading';
@@ -22,8 +23,8 @@ export default function Convocatorias() {
 
   const cargarTodo = async () => {
     const [c, t] = await Promise.all([listarConvocatorias(), listarTorneos()]);
-    setConvocatorias(c);
-    setTorneos(t);
+    setConvocatorias(Array.isArray(c) ? c : []);
+    setTorneos(Array.isArray(t) ? t : []);
   };
 
   useEffect(() => {
@@ -60,15 +61,56 @@ export default function Convocatorias() {
   if (cargando) return <Loading />;
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h4">Convocatorias</Typography>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 4 }}>
+      {/* HEADER DE CONVOCATORIAS */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '12px',
+              bgcolor: '#EFF6FF',
+              color: '#2563EB',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+            }}
+          >
+            <CampaignRoundedIcon sx={{ fontSize: 28 }} />
+          </Box>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+              Convocatorias y Bases Oficiales
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#64748B' }}>
+              Avisos y requisitos de participación para los torneos intercarreras y eventos deportivos.
+            </Typography>
+          </Box>
+        </Box>
+
         {esAdmin && (
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleNuevo}>
-            Nueva convocatoria
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleNuevo}
+            sx={{
+              bgcolor: '#1B5E20',
+              fontWeight: 700,
+              px: 2.5,
+              py: 1,
+              borderRadius: 2,
+              boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
+              '&:hover': { bgcolor: '#14532D' },
+            }}
+          >
+            Nueva Convocatoria
           </Button>
         )}
       </Box>
+
+      {/* TABLA DE CONVOCATORIAS */}
       <ConvocatoriaTable
         convocatorias={convocatorias}
         torneos={torneos}
@@ -77,6 +119,7 @@ export default function Convocatorias() {
         puedeEditar={esAdmin}
         puedeEliminar={esAdmin}
       />
+
       {esAdmin && (
         <ConvocatoriaDialog
           open={dialogAbierto}

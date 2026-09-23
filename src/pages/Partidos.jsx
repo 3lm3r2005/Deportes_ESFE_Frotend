@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography, Tabs, Tab, TablePagination } from '@mui/material';
+import { Box, Button, Typography, Tabs, Tab, TablePagination, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
 import PartidoTable from '../components/partidos/PartidoTable';
 import PartidoDialog from '../components/partidos/PartidoDialog';
 import ResultadoDialog from '../components/partidos/ResultadoDialog';
@@ -38,20 +39,21 @@ export default function Partidos() {
 
   const cargarListasBase = async () => {
     const [t, e, j] = await Promise.all([listarTorneos(), listarEquipos(), listarJugadores()]);
-    setTorneos(t);
-    setEquipos(e);
-    setJugadores(j);
+    setTorneos(Array.isArray(t) ? t : []);
+    setEquipos(Array.isArray(e) ? e : []);
+    setJugadores(Array.isArray(j) ? j : (j?.jugadores || []));
 
     if (esAdmin) {
       const u = await listarUsuarios();
-      setArbitros(u.filter((usr) => usr.rol === 'arbitro'));
+      const listaU = Array.isArray(u) ? u : (u?.usuarios || []);
+      setArbitros(listaU.filter((usr) => usr.rol === 'arbitro'));
     }
   };
 
   const cargarPartidosTabla = async () => {
     const data = await listarPartidosPaginado(pagina + 1, filasPorPagina, filtroEstado);
-    setPartidos(data.partidos);
-    setTotalPartidos(data.total);
+    setPartidos(data?.partidos || []);
+    setTotalPartidos(data?.total || 0);
   };
 
   useEffect(() => {
@@ -98,7 +100,7 @@ export default function Partidos() {
   };
 
   const handleEliminar = async (partido) => {
-    if (confirm('¿Eliminar este partido?')) {
+    if (confirm('¿Eliminar este partido del calendario?')) {
       await eliminarPartido(partido._id);
       cargarPartidosTabla();
     }
@@ -118,23 +120,91 @@ export default function Partidos() {
   if (cargando) return <Loading />;
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h4">Partidos</Typography>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 4 }}>
+      {/* HEADER DE PARTIDOS */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '12px',
+              bgcolor: '#FFFBEB',
+              color: '#D97706',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(217, 119, 6, 0.15)',
+            }}
+          >
+            <EventNoteRoundedIcon sx={{ fontSize: 28 }} />
+          </Box>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+              Fixture y Calendario de Partidos
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#64748B' }}>
+              Programación de jornadas deportivas, marcadores oficiales y actas arbitrales.
+            </Typography>
+          </Box>
+        </Box>
+
         {esAdmin && (
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleNuevo}>
-            Programar partido
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleNuevo}
+            sx={{
+              bgcolor: '#1B5E20',
+              fontWeight: 700,
+              px: 2.5,
+              py: 1,
+              borderRadius: 2,
+              boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
+              '&:hover': { bgcolor: '#14532D' },
+            }}
+          >
+            Programar Partido
           </Button>
         )}
       </Box>
 
-      <Tabs value={filtroEstado} onChange={handleCambiarFiltro} sx={{ mb: 2 }}>
-        <Tab label="Todos" value="todos" />
-        <Tab label="Programados" value="programado" />
-        <Tab label="En juego" value="en_juego" />
-        <Tab label="Finalizados" value="finalizado" />
-      </Tabs>
+      {/* FILTROS POR ESTADO */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 2.5,
+          border: '1px solid #E2E8F0',
+          mb: 3,
+          p: 0.5,
+          bgcolor: '#FFFFFF',
+        }}
+      >
+        <Tabs
+          value={filtroEstado}
+          onChange={handleCambiarFiltro}
+          textColor="primary"
+          indicatorColor="primary"
+          sx={{
+            minHeight: 44,
+            '& .MuiTab-root': {
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              textTransform: 'none',
+              minHeight: 42,
+              borderRadius: 2,
+              transition: 'all 0.2s',
+            },
+          }}
+        >
+          <Tab label="Todos los Encuentros" value="todos" />
+          <Tab label="📅 Programados" value="programado" />
+          <Tab label="⏱️ En Juego" value="en_juego" />
+          <Tab label="✅ Finalizados" value="finalizado" />
+        </Tabs>
+      </Paper>
 
+      {/* TABLA DE PARTIDOS */}
       <PartidoTable
         partidos={partidos}
         equipos={equipos}
@@ -155,7 +225,7 @@ export default function Partidos() {
         rowsPerPage={filasPorPagina}
         onRowsPerPageChange={handleCambiarFilasPorPagina}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        labelRowsPerPage="Filas por página:"
+        labelRowsPerPage="Partidos por página:"
       />
 
       {esAdmin && (

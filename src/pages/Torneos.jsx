@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, Paper, Chip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
 import TorneoTable from '../components/torneos/TorneoTable';
 import TorneoDialog from '../components/torneos/TorneoDialog';
 import InscripcionEquipoDialog from '../components/torneos/InscripcionEquipoDialog';
@@ -26,12 +27,12 @@ export default function Torneos() {
 
   const cargarTorneos = async () => {
     const data = await listarTorneos();
-    setTorneos(data);
+    setTorneos(Array.isArray(data) ? data : []);
   };
 
   const cargarEquipos = async () => {
     const data = await listarEquipos();
-    setEquipos(data);
+    setEquipos(Array.isArray(data) ? data : []);
   };
 
   useEffect(() => {
@@ -79,15 +80,56 @@ export default function Torneos() {
   if (cargando) return <Loading />;
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h4">Torneos</Typography>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 4 }}>
+      {/* HEADER DE LA PÁGINA */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '12px',
+              bgcolor: '#ECFDF5',
+              color: '#059669',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
+            }}
+          >
+            <EmojiEventsRoundedIcon sx={{ fontSize: 28 }} />
+          </Box>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+              Torneos y Campeonatos
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#64748B' }}>
+              Gestión de campeonatos oficiales de ESFE, períodos de vigencia e inscripción de selecciones.
+            </Typography>
+          </Box>
+        </Box>
+
         {esAdmin && (
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleNuevo}>
-            Nuevo torneo
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleNuevo}
+            sx={{
+              bgcolor: '#1B5E20',
+              fontWeight: 700,
+              px: 2.5,
+              py: 1,
+              borderRadius: 2,
+              boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
+              '&:hover': { bgcolor: '#14532D' },
+            }}
+          >
+            Nuevo Torneo
           </Button>
         )}
       </Box>
+
+      {/* TABLA DE TORNEOS */}
       <TorneoTable
         torneos={torneos}
         onEditar={handleEditar}
@@ -97,6 +139,7 @@ export default function Torneos() {
         puedeEliminar={esAdmin}
         puedeInscribir={esAdmin || esDelegado}
       />
+
       {esAdmin && (
         <TorneoDialog
           open={dialogAbierto}

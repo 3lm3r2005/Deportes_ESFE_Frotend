@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Typography, TablePagination } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import EquipoTable from '../components/equipos/EquipoTable';
 import EquipoDialog from '../components/equipos/EquipoDialog';
 import PlantillaDialog from '../components/equipos/PlantillaDialog';
@@ -14,6 +15,7 @@ import { getUsuarioActual } from '../services/auth.service';
 export default function Equipos() {
   const usuario = getUsuarioActual();
   const esDelegado = usuario?.rol === 'delegado';
+  const esAdmin = usuario?.rol === 'admin';
 
   const [equipos, setEquipos] = useState([]);
   const [todosLosEquipos, setTodosLosEquipos] = useState([]);
@@ -31,22 +33,22 @@ export default function Equipos() {
   const cargarEquiposTabla = async () => {
     if (esDelegado) {
       const data = await listarEquipos();
-      setEquipos(data);
+      setEquipos(Array.isArray(data) ? data : []);
       return;
     }
     const data = await listarEquiposPaginado(pagina + 1, filasPorPagina);
-    setEquipos(data.equipos);
-    setTotalEquipos(data.total);
+    setEquipos(data?.equipos || []);
+    setTotalEquipos(data?.total || 0);
   };
 
   const cargarTodosLosEquipos = async () => {
     const data = await listarEquipos();
-    setTodosLosEquipos(data);
+    setTodosLosEquipos(Array.isArray(data) ? data : []);
   };
 
   const cargarJugadores = async () => {
     const data = await listarJugadores();
-    setJugadores(data);
+    setJugadores(Array.isArray(data) ? data : (data?.jugadores || []));
   };
 
   useEffect(() => {
@@ -100,19 +102,64 @@ export default function Equipos() {
   if (cargando) return <Loading />;
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h4">Equipos</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleNuevo}>
-          Nuevo equipo
-        </Button>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 4 }}>
+      {/* HEADER DE LA PÁGINA */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '12px',
+              bgcolor: '#F0F9FF',
+              color: '#0284C7',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.15)',
+            }}
+          >
+            <GroupsRoundedIcon sx={{ fontSize: 28 }} />
+          </Box>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+              {esDelegado ? 'Mi Equipo y Nómina' : 'Equipos de Carreras'}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#64748B' }}>
+              {esDelegado
+                ? 'Información de tu representativo institucional, nómina de titulares y suplentes.'
+                : 'Catálogo de selecciones representativas de las carreras técnicas de ESFE.'}
+            </Typography>
+          </Box>
+        </Box>
+
+        {esAdmin && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleNuevo}
+            sx={{
+              bgcolor: '#1B5E20',
+              fontWeight: 700,
+              px: 2.5,
+              py: 1,
+              borderRadius: 2,
+              boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
+              '&:hover': { bgcolor: '#14532D' },
+            }}
+          >
+            Nuevo Equipo
+          </Button>
+        )}
       </Box>
 
+      {/* TABLA DE EQUIPOS */}
       <EquipoTable
         equipos={equipos}
         onEditar={handleEditar}
         onEliminar={handleEliminar}
         onVerPlantilla={handleVerPlantilla}
+        puedeEliminar={esAdmin}
       />
 
       {!esDelegado && (
@@ -124,7 +171,8 @@ export default function Equipos() {
           rowsPerPage={filasPorPagina}
           onRowsPerPageChange={handleCambiarFilasPorPagina}
           rowsPerPageOptions={[5, 10, 25, 50]}
-          labelRowsPerPage="Filas por página:"
+          labelRowsPerPage="Equipos por página:"
+          sx={{ mt: 1 }}
         />
       )}
 
