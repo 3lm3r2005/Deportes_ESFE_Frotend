@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import {
   AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemText,
@@ -54,8 +54,20 @@ const ROL_CONFIG = {
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const usuario = getUsuarioActual();
+  const [usuario, setUsuario] = useState(getUsuarioActual());
   const [anchorEl, setAnchorEl] = useState(null);
+
+  useEffect(() => {
+    const handleActualizar = () => {
+      setUsuario(getUsuarioActual());
+    };
+    window.addEventListener('usuario-perfil-actualizado', handleActualizar);
+    window.addEventListener('storage', handleActualizar);
+    return () => {
+      window.removeEventListener('usuario-perfil-actualizado', handleActualizar);
+      window.removeEventListener('storage', handleActualizar);
+    };
+  }, []);
 
   const itemsVisibles = menuItems.filter((item) => item.roles.includes(usuario?.rol));
   const rolInfo = ROL_CONFIG[usuario?.rol] || { label: usuario?.rol, color: '#334155', bg: '#F1F5F9' };

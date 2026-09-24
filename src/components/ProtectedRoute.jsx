@@ -8,8 +8,8 @@ export default function ProtectedRoute({ children, rolesPermitidos }) {
 
   if (rolesPermitidos) {
     const usuario = getUsuarioActual();
-    if (!rolesPermitidos.includes(usuario.rol)) {
-      return <Navigate to="/dashboard" replace />;
+    if (!usuario || !rolesPermitidos.includes(usuario.rol)) {
+      return <Navigate to="/inicio" replace />;
     }
   }
 

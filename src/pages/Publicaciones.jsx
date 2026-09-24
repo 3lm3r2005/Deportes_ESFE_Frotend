@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Box, Button, Typography, Card, CardContent, CardActions,
   IconButton, Stack, Paper, Chip, Avatar, Tooltip
@@ -8,6 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FeedRoundedIcon from '@mui/icons-material/FeedRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import Loading from '../components/Loading';
 import PublicacionDialog from '../components/publicaciones/PublicacionDialog';
 import Comentarios from '../components/publicaciones/Comentarios';
@@ -24,15 +25,66 @@ export default function Publicaciones() {
   const [dialogAbierto, setDialogAbierto] = useState(false);
   const [publicacionEditando, setPublicacionEditando] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [refrescando, setRefrescando] = useState(false);
 
-  const cargarPublicaciones = async () => {
-    const data = await listarPublicaciones();
-    setPublicaciones(Array.isArray(data) ? data : []);
-  };
+  const cargarPublicaciones = useCallback(async (mostrarSpinner = false) => {
+    if (mostrarSpinner) setCargando(true);
+    try {
+      const data = await listarPublicaciones();
+      setPublicaciones(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error al cargar publicaciones:', err);
+    } finally {
+      setCargando(false);
+    }
+  }, []);
 
   useEffect(() => {
-    cargarPublicaciones().finally(() => setCargando(false));
-  }, []);
+    let activo = true;
+
+    const iniciarCarga = async () => {
+      try {
+        const data = await listarPublicaciones();
+        if (activo) {
+          setPublicaciones(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error('Error al cargar publicaciones iniciales:', err);
+      } finally {
+        if (activo) {
+          setCargando(false);
+        }
+      }
+    };
+
+    iniciarCarga();
+
+    // Auto-refresco periódico en segundo plano cada 5 segundos para sincronizar mensajes y comentarios
+    const intervalo = setInterval(() => {
+      cargarPublicaciones(false);
+    }, 5000);
+
+    // Refrescar inmediatamente al enfocar la ventana
+    const onVentanaEnfocada = () => cargarPublicaciones(false);
+    window.addEventListener('focus', onVentanaEnfocada);
+
+    // Refrescar si el usuario actualiza su foto de perfil
+    const onPerfilActualizado = () => cargarPublicaciones(false);
+    window.addEventListener('usuario-perfil-actualizado', onPerfilActualizado);
+
+    return () => {
+      activo = false;
+      clearInterval(intervalo);
+      window.removeEventListener('focus', onVentanaEnfocada);
+      window.removeEventListener('usuario-perfil-actualizado', onPerfilActualizado);
+    };
+  }, [cargarPublicaciones]);
+
+  const handleRefrescarManual = async () => {
+    setRefrescando(true);
+    await cargarPublicaciones(false);
+    setTimeout(() => setRefrescando(false), 500);
+  };
 
   const handleNueva = () => {
     setPublicacionEditando(null);
@@ -99,24 +151,61 @@ export default function Publicaciones() {
           </Box>
         </Box>
 
-        {esAdmin && (
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleNueva}
-            sx={{
-              bgcolor: '#1B5E20',
-              fontWeight: 700,
-              px: 2.5,
-              py: 1,
-              borderRadius: 2,
-              boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
-              '&:hover': { bgcolor: '#14532D' },
-            }}
-          >
-            Nueva Publicación
-          </Button>
-        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+          <Tooltip title="Actualizar publicaciones y comentarios en tiempo real">
+            <Button
+              variant="outlined"
+              onClick={handleRefrescarManual}
+              disabled={refrescando}
+              startIcon={
+                <RefreshRoundedIcon
+                  sx={{
+                    animation: refrescando ? 'spin 1s linear infinite' : 'none',
+                    '@keyframes spin': {
+                      '0%': { transform: 'rotate(0deg)' },
+                      '100%': { transform: 'rotate(360deg)' },
+                    },
+                  }}
+                />
+              }
+              sx={{
+                color: '#1B5E20',
+                borderColor: '#A7F3D0',
+                bgcolor: '#FFFFFF',
+                fontWeight: 700,
+                px: 2,
+                py: 0.9,
+                borderRadius: 2,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                '&:hover': {
+                  bgcolor: '#ECFDF5',
+                  borderColor: '#10B981',
+                },
+              }}
+            >
+              {refrescando ? 'Actualizando...' : 'Refrescar'}
+            </Button>
+          </Tooltip>
+
+          {esAdmin && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleNueva}
+              sx={{
+                bgcolor: '#1B5E20',
+                fontWeight: 700,
+                px: 2.5,
+                py: 1,
+                borderRadius: 2,
+                boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
+                '&:hover': { bgcolor: '#14532D' },
+              }}
+            >
+              Nueva Publicación
+            </Button>
+          )}
+        </Box>
       </Box>
 
       {publicaciones.length === 0 && (

@@ -25,6 +25,7 @@ export default function Perfil() {
     setFotoUrl(url);
     await actualizarMiPerfil({ foto_url: url });
     actualizarUsuarioLocal({ foto_url: url });
+    window.dispatchEvent(new CustomEvent('usuario-perfil-actualizado', { detail: { foto_url: url } }));
     setGuardado(true);
     setTimeout(() => window.location.reload(), 1200);
   };

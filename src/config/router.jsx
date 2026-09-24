@@ -1,4 +1,4 @@
-import { createHashRouter } from 'react-router-dom';
+import { createHashRouter, Navigate } from 'react-router-dom';
 import Login from '../pages/Login';
 import Inicio from '../pages/Inicio';
 import MainLayout from '../components/MainLayout';
@@ -16,6 +16,10 @@ import Perfil from '../pages/Perfil';
 
 export const router = createHashRouter([
   {
+    path: '/',
+    element: <Navigate to="/login" replace />,
+  },
+  {
     path: '/login',
     element: <Login />,
   },
@@ -24,7 +28,6 @@ export const router = createHashRouter([
     element: <Registro />,
   },
   {
-    path: '/',
     element: (
       <ProtectedRoute>
         <MainLayout />
