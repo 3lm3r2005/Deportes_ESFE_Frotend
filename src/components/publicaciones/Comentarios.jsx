@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
@@ -417,41 +416,6 @@ export default function Comentarios({ publicacion, onActualizar }) {
           </Box>
         ) : (
           <Stack spacing={0.6} sx={{ mb: 2 }}>
-            {!desplegado && tieneMasDeDos && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  py: 0.5,
-                }}
-              >
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => setDesplegado(true)}
-                  startIcon={<ChatBubbleOutlineRoundedIcon sx={{ fontSize: 16 }} />}
-                  endIcon={<ExpandMoreRoundedIcon sx={{ fontSize: 16 }} />}
-                  sx={{
-                    color: '#065F46',
-                    borderColor: '#A7F3D0',
-                    bgcolor: '#ECFDF5',
-                    fontSize: '0.76rem',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    borderRadius: 2,
-                    py: 0.4,
-                    px: 1.8,
-                    '&:hover': {
-                      bgcolor: '#D1FAE5',
-                      borderColor: '#10B981',
-                    },
-                  }}
-                >
-                  Desplegar caja para ver los {totalComentarios} comentarios anteriores
-                </Button>
-              </Box>
-            )}
             {comentariosAMostrar.map((c) => renderComentario(c))}
           </Stack>
         )
