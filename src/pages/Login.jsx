@@ -37,14 +37,15 @@ export default function Login() {
   return (
     <Box
       sx={{
-        height: '100vh',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         bgcolor: 'grey.100',
+        p: 2,
       }}
     >
-      <Paper sx={{ p: 4, width: 350 }}>
+      <Paper sx={{ p: { xs: 3, sm: 4 }, width: '100%', maxWidth: 380, borderRadius: 3 }}>
         <Typography variant="h5" sx={{ mb: 3, textAlign: 'center' }}>
           Deportes ESFE
         </Typography>

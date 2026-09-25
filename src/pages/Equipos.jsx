@@ -104,12 +104,12 @@ export default function Equipos() {
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 4 }}>
       {/* HEADER DE LA PÁGINA */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3.5 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexWrap: 'wrap', gap: 2, mb: 3.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
-              width: 48,
-              height: 48,
+              width: { xs: 42, sm: 48 },
+              height: { xs: 42, sm: 48 },
               borderRadius: '12px',
               bgcolor: '#F0F9FF',
               color: '#0284C7',
@@ -117,15 +117,16 @@ export default function Equipos() {
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(2, 132, 199, 0.15)',
+              flexShrink: 0,
             }}
           >
-            <GroupsRoundedIcon sx={{ fontSize: 28 }} />
+            <GroupsRoundedIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
           </Box>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.125rem' } }}>
               {esDelegado ? 'Mi Equipo y Nómina' : 'Equipos de Carreras'}
             </Typography>
-            <Typography variant="body2" sx={{ color: '#64748B' }}>
+            <Typography variant="body2" sx={{ color: '#64748B', fontSize: { xs: '0.82rem', sm: '0.875rem' } }}>
               {esDelegado
                 ? 'Información de tu representativo institucional, nómina de titulares y suplentes.'
                 : 'Catálogo de selecciones representativas de las carreras técnicas de ESFE.'}
@@ -145,6 +146,7 @@ export default function Equipos() {
               py: 1,
               borderRadius: 2,
               boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
+              width: { xs: '100%', sm: 'auto' },
               '&:hover': { bgcolor: '#14532D' },
             }}
           >

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button,
   TextField, Box, Typography, Table, TableHead, TableRow, TableCell, TableBody,
-  Checkbox, Alert, Paper, Grid, Avatar, Chip, Stack, Divider, Tooltip
+  Checkbox, Alert, Paper, Grid, Avatar, Chip, Stack, Divider, Tooltip,
+  TableContainer
 } from '@mui/material';
 import SportsSoccerRoundedIcon from '@mui/icons-material/SportsSoccerRounded';
 import StyleRoundedIcon from '@mui/icons-material/StyleRounded';
@@ -195,98 +196,100 @@ export default function ResultadoDialog({ open, onClose, onGuardar, partido, equ
           />
         </Box>
 
-        <Table size="small">
-          <TableHead sx={{ bgcolor: '#F1F5F9' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700, width: 60, textAlign: 'center' }}>Dorsal</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Jugador / Posición</TableCell>
-              <TableCell sx={{ fontWeight: 700, width: 110, textAlign: 'center' }}>Goles</TableCell>
-              <TableCell sx={{ fontWeight: 700, width: 90, textAlign: 'center' }}>Amarilla 🟨</TableCell>
-              <TableCell sx={{ fontWeight: 700, width: 90, textAlign: 'center' }}>Roja 🟥</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {lista.map((j) => {
-              const s = stats[j.jugador_id] || { goles: 0, tarjetas_amarillas: 0, tarjetas_rojas: 0 };
-              return (
-                <TableRow key={j.jugador_id} sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
-                  {/* Dorsal */}
-                  <TableCell align="center">
-                    <Chip
-                      label={`#${j.dorsal}`}
-                      size="small"
-                      sx={{ fontWeight: 800, bgcolor: '#E2E8F0', color: '#334155', height: 24 }}
-                    />
-                  </TableCell>
-
-                  {/* Nombre y posición */}
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#1E293B' }}>
-                      {j.nombre} {j.apellido}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748B' }}>
-                      {j.posicion} • {j.carne}
-                    </Typography>
-                  </TableCell>
-
-                  {/* Goles */}
-                  <TableCell align="center">
-                    <TextField
-                      type="number"
-                      size="small"
-                      value={s.goles}
-                      slotProps={{
-                        htmlInput: {
-                          min: 0,
-                          max: golesEquipo,
-                          style: { textAlign: 'center', fontWeight: 700 },
-                        },
-                      }}
-                      sx={{ width: 75 }}
-                      onChange={(e) =>
-                        actualizarStat(j.jugador_id, 'goles', Math.max(0, Number(e.target.value) || 0))
-                      }
-                    />
-                  </TableCell>
-
-                  {/* Tarjeta Amarilla */}
-                  <TableCell align="center">
-                    <Tooltip title="Tarjeta Amarilla">
-                      <Checkbox
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table size="small" sx={{ minWidth: 480 }}>
+            <TableHead sx={{ bgcolor: '#F1F5F9' }}>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 700, width: 60, textAlign: 'center' }}>Dorsal</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Jugador / Posición</TableCell>
+                <TableCell sx={{ fontWeight: 700, width: 110, textAlign: 'center' }}>Goles</TableCell>
+                <TableCell sx={{ fontWeight: 700, width: 90, textAlign: 'center' }}>Amarilla 🟨</TableCell>
+                <TableCell sx={{ fontWeight: 700, width: 90, textAlign: 'center' }}>Roja 🟥</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {lista.map((j) => {
+                const s = stats[j.jugador_id] || { goles: 0, tarjetas_amarillas: 0, tarjetas_rojas: 0 };
+                return (
+                  <TableRow key={j.jugador_id} sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
+                    {/* Dorsal */}
+                    <TableCell align="center">
+                      <Chip
+                        label={`#${j.dorsal}`}
                         size="small"
-                        checked={s.tarjetas_amarillas > 0}
-                        sx={{
-                          color: '#FBBF24',
-                          '&.Mui-checked': { color: '#F59E0B' },
+                        sx={{ fontWeight: 800, bgcolor: '#E2E8F0', color: '#334155', height: 24 }}
+                      />
+                    </TableCell>
+
+                    {/* Nombre y posición */}
+                    <TableCell>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#1E293B' }}>
+                        {j.nombre} {j.apellido}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        {j.posicion} • {j.carne}
+                      </Typography>
+                    </TableCell>
+
+                    {/* Goles */}
+                    <TableCell align="center">
+                      <TextField
+                        type="number"
+                        size="small"
+                        value={s.goles}
+                        slotProps={{
+                          htmlInput: {
+                            min: 0,
+                            max: golesEquipo,
+                            style: { textAlign: 'center', fontWeight: 700 },
+                          },
                         }}
+                        sx={{ width: 75 }}
                         onChange={(e) =>
-                          actualizarStat(j.jugador_id, 'tarjetas_amarillas', e.target.checked ? 1 : 0)
+                          actualizarStat(j.jugador_id, 'goles', Math.max(0, Number(e.target.value) || 0))
                         }
                       />
-                    </Tooltip>
-                  </TableCell>
+                    </TableCell>
 
-                  {/* Tarjeta Roja */}
-                  <TableCell align="center">
-                    <Tooltip title="Tarjeta Roja (Expulsión)">
-                      <Checkbox
-                        size="small"
-                        checked={s.tarjetas_rojas > 0}
-                        sx={{
-                          color: '#F87171',
-                          '&.Mui-checked': { color: '#EF4444' },
-                        }}
-                        onChange={(e) =>
-                          actualizarStat(j.jugador_id, 'tarjetas_rojas', e.target.checked ? 1 : 0)
-                        }
-                      />
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                    {/* Tarjeta Amarilla */}
+                    <TableCell align="center">
+                      <Tooltip title="Tarjeta Amarilla">
+                        <Checkbox
+                          size="small"
+                          checked={s.tarjetas_amarillas > 0}
+                          sx={{
+                            color: '#FBBF24',
+                            '&.Mui-checked': { color: '#F59E0B' },
+                          }}
+                          onChange={(e) =>
+                            actualizarStat(j.jugador_id, 'tarjetas_amarillas', e.target.checked ? 1 : 0)
+                          }
+                        />
+                      </Tooltip>
+                    </TableCell>
+
+                    {/* Tarjeta Roja */}
+                    <TableCell align="center">
+                      <Tooltip title="Tarjeta Roja (Expulsión)">
+                        <Checkbox
+                          size="small"
+                          checked={s.tarjetas_rojas > 0}
+                          sx={{
+                            color: '#F87171',
+                            '&.Mui-checked': { color: '#EF4444' },
+                          }}
+                          onChange={(e) =>
+                            actualizarStat(j.jugador_id, 'tarjetas_rojas', e.target.checked ? 1 : 0)
+                          }
+                        />
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     );
   };

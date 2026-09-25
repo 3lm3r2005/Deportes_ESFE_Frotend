@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, TextField, MenuItem,
-  Table, TableHead, TableRow, TableCell, TableBody, Paper, Chip, Avatar, Stack
+  Table, TableHead, TableRow, TableCell, TableBody, Paper, Chip, Avatar, Stack,
+  TableContainer
 } from '@mui/material';
 import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
 import SportsSoccerRoundedIcon from '@mui/icons-material/SportsSoccerRounded';
@@ -52,12 +53,12 @@ export default function Posiciones() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexWrap: 'wrap', gap: 2, mb: 3 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.125rem' } }}>
             Estadísticas y Clasificación
           </Typography>
-          <Typography variant="body2" sx={{ color: '#64748B' }}>
+          <Typography variant="body2" sx={{ color: '#64748B', fontSize: { xs: '0.82rem', sm: '0.875rem' } }}>
             Consulta la tabla de posiciones oficial, goleadores y control disciplinario.
           </Typography>
         </Box>
@@ -68,7 +69,7 @@ export default function Posiciones() {
           size="small"
           value={torneoId}
           onChange={(e) => setTorneoId(e.target.value)}
-          sx={{ minWidth: 260, bgcolor: '#FFFFFF', borderRadius: 2 }}
+          sx={{ minWidth: { xs: '100%', sm: 260 }, width: { xs: '100%', sm: 'auto' }, bgcolor: '#FFFFFF', borderRadius: 2 }}
         >
           {torneos.map((t) => (
             <MenuItem key={t._id} value={t._id}>
@@ -105,13 +106,14 @@ export default function Posiciones() {
               </Typography>
             </Box>
 
-            <Table>
-              <TableHead sx={{ bgcolor: '#F1F5F9' }}>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Pos / Equipo</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>PJ</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>G</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>E</TableCell>
+            <TableContainer sx={{ overflowX: 'auto' }}>
+              <Table sx={{ minWidth: 620 }}>
+                <TableHead sx={{ bgcolor: '#F1F5F9' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Pos / Equipo</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>PJ</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>G</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>E</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>P</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>GF</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>GC</TableCell>
@@ -167,6 +169,7 @@ export default function Posiciones() {
                 )}
               </TableBody>
             </Table>
+            </TableContainer>
           </Paper>
 
           {/* GOLEADORES Y TARJETAS EN 2 COLUMNAS */}
@@ -190,43 +193,45 @@ export default function Posiciones() {
                 </Typography>
               </Box>
 
-              <Table>
-                <TableHead sx={{ bgcolor: '#F1F5F9' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Jugador</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Equipo</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>Goles</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {goleadores.length === 0 ? (
+              <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 320 }}>
+                  <TableHead sx={{ bgcolor: '#F1F5F9' }}>
                     <TableRow>
-                      <TableCell colSpan={3} align="center" sx={{ py: 3, color: '#64748B' }}>
-                        Todavía no hay goles registrados en este torneo.
-                      </TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Jugador</TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Equipo</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>Goles</TableCell>
                     </TableRow>
-                  ) : (
-                    goleadores.map((g, idx) => (
-                      <TableRow key={g.jugador_id} sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
-                        <TableCell sx={{ fontWeight: 600 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            {idx === 0 && <span>⚽</span>}
-                            {g.nombre_jugador}
-                          </Box>
-                        </TableCell>
-                        <TableCell sx={{ color: '#64748B' }}>{g.nombre_equipo}</TableCell>
-                        <TableCell align="center">
-                          <Chip
-                            label={`${g.goles} gol${g.goles === 1 ? '' : 'es'}`}
-                            size="small"
-                            sx={{ fontWeight: 800, bgcolor: '#ECFDF5', color: '#065F46' }}
-                          />
+                  </TableHead>
+                  <TableBody>
+                    {goleadores.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={3} align="center" sx={{ py: 3, color: '#64748B' }}>
+                          Todavía no hay goles registrados en este torneo.
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : (
+                      goleadores.map((g, idx) => (
+                        <TableRow key={g.jugador_id} sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {idx === 0 && <span>⚽</span>}
+                              {g.nombre_jugador}
+                            </Box>
+                          </TableCell>
+                          <TableCell sx={{ color: '#64748B' }}>{g.nombre_equipo}</TableCell>
+                          <TableCell align="center">
+                            <Chip
+                              label={`${g.goles} gol${g.goles === 1 ? '' : 'es'}`}
+                              size="small"
+                              sx={{ fontWeight: 800, bgcolor: '#ECFDF5', color: '#065F46' }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Paper>
 
             {/* TARJETAS */}
@@ -248,54 +253,56 @@ export default function Posiciones() {
                 </Typography>
               </Box>
 
-              <Table>
-                <TableHead sx={{ bgcolor: '#F1F5F9' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Jugador / Equipo</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>🟨</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>🟥</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>Sanción</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {tarjetas.length === 0 ? (
+              <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 320 }}>
+                  <TableHead sx={{ bgcolor: '#F1F5F9' }}>
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 3, color: '#64748B' }}>
-                        Limpio. Sin amonestaciones registradas.
-                      </TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Jugador / Equipo</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>🟨</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>🟥</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, color: '#475569' }}>Sanción</TableCell>
                     </TableRow>
-                  ) : (
-                    tarjetas.map((t) => {
-                      const expulsado = t.tarjetas_rojas > 0 || t.tarjetas_amarillas >= 2;
-                      return (
-                        <TableRow key={t.jugador_id} sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>{t.nombre_jugador}</Typography>
-                            <Typography variant="caption" sx={{ color: '#64748B' }}>{t.nombre_equipo}</Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            {t.tarjetas_amarillas > 0 ? (
-                              <Chip label={t.tarjetas_amarillas} size="small" sx={{ bgcolor: '#FEF08A', color: '#854D0E', fontWeight: 800 }} />
-                            ) : '0'}
-                          </TableCell>
-                          <TableCell align="center">
-                            {t.tarjetas_rojas > 0 ? (
-                              <Chip label={t.tarjetas_rojas} size="small" sx={{ bgcolor: '#FEE2E2', color: '#991B1B', fontWeight: 800 }} />
-                            ) : '0'}
-                          </TableCell>
-                          <TableCell align="center">
-                            {expulsado ? (
-                              <Chip label="Suspendido" size="small" sx={{ bgcolor: '#FEE2E2', color: '#DC2626', fontWeight: 700 }} />
-                            ) : (
-                              <Chip label="Habilitado" size="small" sx={{ bgcolor: '#F0FDF4', color: '#16A34A', fontWeight: 600 }} />
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {tarjetas.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} align="center" sx={{ py: 3, color: '#64748B' }}>
+                          Limpio. Sin amonestaciones registradas.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      tarjetas.map((t) => {
+                        const expulsado = t.tarjetas_rojas > 0 || t.tarjetas_amarillas >= 2;
+                        return (
+                          <TableRow key={t.jugador_id} sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
+                            <TableCell>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{t.nombre_jugador}</Typography>
+                              <Typography variant="caption" sx={{ color: '#64748B' }}>{t.nombre_equipo}</Typography>
+                            </TableCell>
+                            <TableCell align="center">
+                              {t.tarjetas_amarillas > 0 ? (
+                                <Chip label={t.tarjetas_amarillas} size="small" sx={{ bgcolor: '#FEF08A', color: '#854D0E', fontWeight: 800 }} />
+                              ) : '0'}
+                            </TableCell>
+                            <TableCell align="center">
+                              {t.tarjetas_rojas > 0 ? (
+                                <Chip label={t.tarjetas_rojas} size="small" sx={{ bgcolor: '#FEE2E2', color: '#991B1B', fontWeight: 800 }} />
+                              ) : '0'}
+                            </TableCell>
+                            <TableCell align="center">
+                              {expulsado ? (
+                                <Chip label="Suspendido" size="small" sx={{ bgcolor: '#FEE2E2', color: '#DC2626', fontWeight: 700 }} />
+                              ) : (
+                                <Chip label="Habilitado" size="small" sx={{ bgcolor: '#F0FDF4', color: '#16A34A', fontWeight: 600 }} />
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Paper>
           </Stack>
         </>

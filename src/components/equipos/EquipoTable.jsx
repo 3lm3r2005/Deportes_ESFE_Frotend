@@ -1,5 +1,6 @@
 import {
-  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Avatar, Chip, Paper, Box, Typography, Button, Tooltip
+  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Avatar, Chip, Paper, Box, Typography, Button, Tooltip,
+  TableContainer
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -8,15 +9,16 @@ import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 
 export default function EquipoTable({ equipos, onEditar, onEliminar, onVerPlantilla, puedeEliminar = true }) {
   return (
-    <Paper
+    <TableContainer
+      component={Paper}
       elevation={0}
       sx={{
         borderRadius: 3,
         border: '1px solid #E2E8F0',
-        overflow: 'hidden',
+        overflowX: 'auto',
       }}
     >
-      <Table>
+      <Table sx={{ minWidth: 650 }}>
         <TableHead sx={{ bgcolor: '#F8FAFC' }}>
           <TableRow>
             <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Equipo</TableCell>
@@ -146,6 +148,6 @@ export default function EquipoTable({ equipos, onEditar, onEliminar, onVerPlanti
           )}
         </TableBody>
       </Table>
-    </Paper>
+    </TableContainer>
   );
 }

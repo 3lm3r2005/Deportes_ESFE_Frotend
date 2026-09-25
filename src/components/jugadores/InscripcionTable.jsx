@@ -1,5 +1,6 @@
 import {
-  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Chip, Paper, Box, Typography, Avatar, Tooltip
+  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Chip, Paper, Box, Typography, Avatar, Tooltip,
+  TableContainer
 } from '@mui/material';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 
@@ -23,15 +24,16 @@ export default function InscripcionTable({ inscritos, jugadoresCompletos, onQuit
   });
 
   return (
-    <Paper
+    <TableContainer
+      component={Paper}
       elevation={0}
       sx={{
         borderRadius: 3,
         border: '1px solid #E2E8F0',
-        overflow: 'hidden',
+        overflowX: 'auto',
       }}
     >
-      <Table>
+      <Table sx={{ minWidth: 600 }}>
         <TableHead sx={{ bgcolor: '#F8FAFC' }}>
           <TableRow>
             <TableCell align="center" sx={{ fontWeight: 700, width: 70, color: '#475569' }}>Dorsal</TableCell>
@@ -145,6 +147,6 @@ export default function InscripcionTable({ inscritos, jugadoresCompletos, onQuit
           )}
         </TableBody>
       </Table>
-    </Paper>
+    </TableContainer>
   );
 }

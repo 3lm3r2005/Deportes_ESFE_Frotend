@@ -1,5 +1,6 @@
 import {
-  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Chip, Paper, Box, Typography, Avatar, Button, Tooltip
+  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Chip, Paper, Box, Typography, Avatar, Button, Tooltip,
+  TableContainer
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,16 +25,17 @@ export default function PartidoTable({
   const hayAcciones = puedeEditar || puedeEliminar || puedeRegistrar;
 
   return (
-    <Paper
+    <TableContainer
+      component={Paper}
       elevation={0}
       sx={{
         borderRadius: 3,
         border: '1px solid #E2E8F0',
-        overflow: 'hidden',
+        overflowX: 'auto',
         mb: 2,
       }}
     >
-      <Table>
+      <Table sx={{ minWidth: 650 }}>
         <TableHead sx={{ bgcolor: '#F8FAFC' }}>
           <TableRow>
             <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Torneo</TableCell>
@@ -188,6 +190,6 @@ export default function PartidoTable({
           )}
         </TableBody>
       </Table>
-    </Paper>
+    </TableContainer>
   );
 }

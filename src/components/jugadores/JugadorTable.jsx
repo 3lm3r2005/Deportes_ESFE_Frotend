@@ -1,5 +1,6 @@
 import {
-  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Avatar, Chip, Paper, Box, Typography, Tooltip
+  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Avatar, Chip, Paper, Box, Typography, Tooltip,
+  TableContainer
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -17,15 +18,16 @@ export default function JugadorTable({ jugadores, onEditar, onEliminar, puedeEdi
   const hayAcciones = puedeEditar || puedeEliminar;
 
   return (
-    <Paper
+    <TableContainer
+      component={Paper}
       elevation={0}
       sx={{
         borderRadius: 3,
         border: '1px solid #E2E8F0',
-        overflow: 'hidden',
+        overflowX: 'auto',
       }}
     >
-      <Table>
+      <Table sx={{ minWidth: 650 }}>
         <TableHead sx={{ bgcolor: '#F8FAFC' }}>
           <TableRow>
             <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Futbolista</TableCell>
@@ -141,6 +143,6 @@ export default function JugadorTable({ jugadores, onEditar, onEliminar, puedeEdi
           )}
         </TableBody>
       </Table>
-    </Paper>
+    </TableContainer>
   );
 }

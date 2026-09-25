@@ -124,12 +124,12 @@ export default function Publicaciones() {
   return (
     <Box sx={{ maxWidth: 860, mx: 'auto', pb: 4 }}>
       {/* HEADER DE PUBLICACIONES */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3.5 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexWrap: 'wrap', gap: 2, mb: 3.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
-              width: 48,
-              height: 48,
+              width: { xs: 42, sm: 48 },
+              height: { xs: 42, sm: 48 },
               borderRadius: '12px',
               bgcolor: '#F0FDF4',
               color: '#16A34A',
@@ -137,21 +137,22 @@ export default function Publicaciones() {
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(22, 163, 74, 0.15)',
+              flexShrink: 0,
             }}
           >
-            <FeedRoundedIcon sx={{ fontSize: 28 }} />
+            <FeedRoundedIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
           </Box>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.125rem' } }}>
               Muro Deportivo y Noticias
             </Typography>
-            <Typography variant="body2" sx={{ color: '#64748B' }}>
+            <Typography variant="body2" sx={{ color: '#64748B', fontSize: { xs: '0.82rem', sm: '0.875rem' } }}>
               Comunicados oficiales de los torneos, crónicas de partidos y espacio de interacción estudiantil.
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
           <Tooltip title="Actualizar publicaciones y comentarios en tiempo real">
             <Button
               variant="outlined"
@@ -177,6 +178,7 @@ export default function Publicaciones() {
                 py: 0.9,
                 borderRadius: 2,
                 boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                flex: { xs: 1, sm: 'none' },
                 '&:hover': {
                   bgcolor: '#ECFDF5',
                   borderColor: '#10B981',
@@ -199,6 +201,7 @@ export default function Publicaciones() {
                 py: 1,
                 borderRadius: 2,
                 boxShadow: '0 4px 12px rgba(27, 94, 32, 0.25)',
+                flex: { xs: 1, sm: 'none' },
                 '&:hover': { bgcolor: '#14532D' },
               }}
             >

@@ -1,5 +1,6 @@
 import {
-  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Chip, Paper, Box, Typography, Tooltip
+  Table, TableHead, TableRow, TableCell, TableBody, IconButton, Chip, Paper, Box, Typography, Tooltip,
+  TableContainer
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,15 +13,16 @@ export default function ConvocatoriaTable({ convocatorias, torneos, onEditar, on
   const hayAcciones = puedeEditar || puedeEliminar;
 
   return (
-    <Paper
+    <TableContainer
+      component={Paper}
       elevation={0}
       sx={{
         borderRadius: 3,
         border: '1px solid #E2E8F0',
-        overflow: 'hidden',
+        overflowX: 'auto',
       }}
     >
-      <Table>
+      <Table sx={{ minWidth: 650 }}>
         <TableHead sx={{ bgcolor: '#F8FAFC' }}>
           <TableRow>
             <TableCell sx={{ fontWeight: 700, color: '#475569' }}>Torneo Asociado</TableCell>
@@ -147,6 +149,6 @@ export default function ConvocatoriaTable({ convocatorias, torneos, onEditar, on
           )}
         </TableBody>
       </Table>
-    </Paper>
+    </TableContainer>
   );
 }

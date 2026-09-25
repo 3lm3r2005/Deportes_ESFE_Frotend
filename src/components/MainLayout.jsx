@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import {
   AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemText,
-  Box, Button, Avatar, Menu, MenuItem, ListItemIcon, Chip
+  Box, Button, Avatar, Menu, MenuItem, ListItemIcon, Chip, IconButton
 } from '@mui/material';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
@@ -57,6 +58,8 @@ export default function MainLayout() {
   const [usuario, setUsuario] = useState(getUsuarioActual());
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   useEffect(() => {
     const handleActualizar = () => {
       setUsuario(getUsuarioActual());
@@ -83,6 +86,108 @@ export default function MainLayout() {
     handleCerrarMenu();
     navigate('/perfil');
   };
+  const handleDrawerToggle = () => {
+    setMobileOpen((prev) => !prev);
+  };
+
+  const drawerContent = (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Toolbar />
+      <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+        <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+          Navegación
+        </Typography>
+      </Box>
+      <List sx={{ px: 1.2, py: 0.5, flexGrow: 1 }}>
+        {itemsVisibles.map((item) => {
+          const estaActivo = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+          return (
+            <ListItemButton
+              key={item.path}
+              onClick={() => {
+                navigate(item.path);
+                setMobileOpen(false);
+              }}
+              selected={estaActivo}
+              sx={{
+                my: 0.4,
+                px: 1.8,
+                py: 1,
+                borderRadius: '10px',
+                transition: 'all 0.2s ease-in-out',
+                color: estaActivo ? '#065F46' : '#475569',
+                backgroundColor: estaActivo ? '#D1FAE5' : 'transparent',
+                borderLeft: estaActivo ? '4px solid #10B981' : '4px solid transparent',
+                '&:hover': {
+                  backgroundColor: estaActivo ? '#A7F3D0' : '#E8F5E9',
+                  color: '#065F46',
+                  transform: 'translateX(4px)',
+                  '& .MuiListItemIcon-root svg': {
+                    color: '#065F46',
+                  },
+                  '& .MuiListItemText-primary': {
+                    color: '#065F46',
+                    fontWeight: 700,
+                  },
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#D1FAE5',
+                  '&:hover': {
+                    backgroundColor: '#A7F3D0',
+                  },
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 38 }}>
+                {renderIcono(item.path, estaActivo)}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{
+                  fontSize: '0.93rem',
+                  fontWeight: estaActivo ? 700 : 500,
+                  letterSpacing: '0.2px',
+                }}
+              />
+            </ListItemButton>
+          );
+        })}
+      </List>
+      {/* Información del usuario en el menú móvil */}
+      <Box sx={{ p: 2, borderTop: '1px solid #E2E8F0', display: { md: 'none' } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Avatar
+            src={usuario?.foto_url}
+            sx={{
+              width: 36,
+              height: 36,
+              bgcolor: '#388E3C',
+              fontSize: '0.9rem',
+              fontWeight: 700,
+            }}
+          >
+            {usuario?.nombre?.charAt(0)?.toUpperCase()}
+          </Avatar>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {usuario?.nombre} {usuario?.apellido || ''}
+            </Typography>
+            <Chip
+              label={rolInfo.label}
+              size="small"
+              sx={{
+                bgcolor: rolInfo.bg,
+                color: rolInfo.color,
+                fontWeight: 700,
+                fontSize: '0.7rem',
+                height: 20,
+              }}
+            />
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
@@ -95,8 +200,18 @@ export default function MainLayout() {
           borderBottom: '1px solid rgba(255,255,255,0.1)',
         }}
       >
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: { xs: 2, sm: 3 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: { xs: 1.5, sm: 3 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+            <IconButton
+              color="inherit"
+              aria-label="Abrir menú"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 0.5, display: { md: 'none' }, color: '#FFFFFF' }}
+            >
+              <MenuRoundedIcon />
+            </IconButton>
+
             <Box
               sx={{
                 width: 36,
@@ -107,21 +222,22 @@ export default function MainLayout() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)',
+                flexShrink: 0,
               }}
             >
               <SportsSoccerRoundedIcon sx={{ color: '#FFFFFF', fontSize: 24 }} />
             </Box>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.4px', lineHeight: 1.2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.4px', lineHeight: 1.2, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                 Deportes ESFE
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.72rem', letterSpacing: '0.5px' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.72rem', letterSpacing: '0.5px', display: { xs: 'none', sm: 'block' } }}>
                 Torneos y Convivencia Deportiva
               </Typography>
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
             <Chip
               label={rolInfo.label}
               size="small"
@@ -141,7 +257,7 @@ export default function MainLayout() {
               sx={{
                 textTransform: 'none',
                 borderRadius: '8px',
-                px: 1.5,
+                px: { xs: 1, sm: 1.5 },
                 py: 0.5,
                 bgcolor: 'rgba(255,255,255,0.08)',
                 '&:hover': { bgcolor: 'rgba(255,255,255,0.18)' },
@@ -152,7 +268,7 @@ export default function MainLayout() {
                 sx={{
                   width: 32,
                   height: 32,
-                  mr: 1,
+                  mr: { xs: 0, md: 1 },
                   bgcolor: '#388E3C',
                   fontSize: '0.9rem',
                   fontWeight: 700,
@@ -187,9 +303,31 @@ export default function MainLayout() {
         </Toolbar>
       </AppBar>
 
+      {/* Navegación lateral: versión móvil desplegable (temporary) */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            backgroundColor: '#FAFAFA',
+            boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* Navegación lateral: versión escritorio fija (permanent) */}
       <Drawer
         variant="permanent"
+        open
         sx={{
+          display: { xs: 'none', md: 'block' },
           width: drawerWidth,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
@@ -200,67 +338,19 @@ export default function MainLayout() {
           },
         }}
       >
-        <Toolbar />
-        <Box sx={{ px: 2, pt: 2, pb: 1 }}>
-          <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
-            Navegación
-          </Typography>
-        </Box>
-        <List sx={{ px: 1.2, py: 0.5 }}>
-          {itemsVisibles.map((item) => {
-            const estaActivo = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
-            return (
-              <ListItemButton
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                selected={estaActivo}
-                sx={{
-                  my: 0.4,
-                  px: 1.8,
-                  py: 1,
-                  borderRadius: '10px',
-                  transition: 'all 0.2s ease-in-out',
-                  color: estaActivo ? '#065F46' : '#475569',
-                  backgroundColor: estaActivo ? '#D1FAE5' : 'transparent',
-                  borderLeft: estaActivo ? '4px solid #10B981' : '4px solid transparent',
-                  '&:hover': {
-                    backgroundColor: estaActivo ? '#A7F3D0' : '#E8F5E9',
-                    color: '#065F46',
-                    transform: 'translateX(4px)',
-                    '& .MuiListItemIcon-root svg': {
-                      color: '#065F46',
-                    },
-                    '& .MuiListItemText-primary': {
-                      color: '#065F46',
-                      fontWeight: 700,
-                    },
-                  },
-                  '&.Mui-selected': {
-                    backgroundColor: '#D1FAE5',
-                    '&:hover': {
-                      backgroundColor: '#A7F3D0',
-                    },
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 38 }}>
-                  {renderIcono(item.path, estaActivo)}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{
-                    fontSize: '0.93rem',
-                    fontWeight: estaActivo ? 700 : 500,
-                    letterSpacing: '0.2px',
-                  }}
-                />
-              </ListItemButton>
-            );
-          })}
-        </List>
+        {drawerContent}
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3, md: 4 }, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: { xs: 2, sm: 3, md: 4 },
+          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+          minWidth: 0,
+          overflowX: 'hidden',
+        }}
+      >
         <Toolbar />
         <Outlet />
       </Box>

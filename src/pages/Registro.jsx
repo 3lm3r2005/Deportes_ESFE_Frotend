@@ -44,11 +44,11 @@ export default function Registro() {
   return (
     <Box
       sx={{
-        height: '100vh', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', bgcolor: 'grey.100',
+        minHeight: '100vh', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', bgcolor: 'grey.100', p: 2,
       }}
     >
-      <Paper sx={{ p: 4, width: 380 }}>
+      <Paper sx={{ p: { xs: 3, sm: 4 }, width: '100%', maxWidth: 400, borderRadius: 3 }}>
         <Typography variant="h5" sx={{ mb: 1, textAlign: 'center' }}>
           Crear cuenta de Aficionado
         </Typography>

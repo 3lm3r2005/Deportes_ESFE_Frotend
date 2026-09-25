@@ -36,8 +36,8 @@ export default function Perfil() {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3.5 }}>
         <Box
           sx={{
-            width: 48,
-            height: 48,
+            width: { xs: 42, sm: 48 },
+            height: { xs: 42, sm: 48 },
             borderRadius: '12px',
             bgcolor: '#ECFDF5',
             color: '#059669',
@@ -45,15 +45,16 @@ export default function Perfil() {
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
+            flexShrink: 0,
           }}
         >
-          <AccountCircleRoundedIcon sx={{ fontSize: 28 }} />
+          <AccountCircleRoundedIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
         </Box>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px' }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.125rem' } }}>
             Mi Perfil de Usuario
           </Typography>
-          <Typography variant="body2" sx={{ color: '#64748B' }}>
+          <Typography variant="body2" sx={{ color: '#64748B', fontSize: { xs: '0.82rem', sm: '0.875rem' } }}>
             Información de tu cuenta deportiva institucional y personalización de avatar.
           </Typography>
         </Box>
@@ -62,7 +63,7 @@ export default function Perfil() {
       <Paper
         elevation={0}
         sx={{
-          p: 3.5,
+          p: { xs: 2.5, sm: 3.5 },
           borderRadius: 3,
           border: '1px solid #E2E8F0',
           bgcolor: '#FFFFFF',
