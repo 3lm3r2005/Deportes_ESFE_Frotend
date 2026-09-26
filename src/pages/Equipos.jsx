@@ -134,7 +134,7 @@ export default function Equipos() {
           </Box>
         </Box>
 
-        {esAdmin && (
+        {(esAdmin || esDelegado) && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -150,7 +150,7 @@ export default function Equipos() {
               '&:hover': { bgcolor: '#14532D' },
             }}
           >
-            Nuevo Equipo
+            {esDelegado ? 'Inscribir Equipo' : 'Nuevo Equipo'}
           </Button>
         )}
       </Box>

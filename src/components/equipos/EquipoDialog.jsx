@@ -20,6 +20,8 @@ const valoresPorDefecto = {
 export default function EquipoDialog({ open, onClose, onGuardar, equipo, equiposExistentes }) {
   const usuarioActual = getUsuarioActual();
   const esDelegado = usuarioActual?.rol === 'delegado';
+  const delegadoId = usuarioActual?.id || usuarioActual?._id || '';
+  const yaTieneEquipo = esDelegado && !equipo && (equiposExistentes || []).some((e) => e.delegado_id === delegadoId);
 
   const [delegados, setDelegados] = useState([]);
   const [logoUrl, setLogoUrl] = useState('');
@@ -34,7 +36,7 @@ export default function EquipoDialog({ open, onClose, onGuardar, equipo, equipos
   } = useForm({
     resolver: zodResolver(equipoSchema),
     defaultValues: esDelegado
-      ? { ...valoresPorDefecto, delegado_id: usuarioActual.id }
+      ? { ...valoresPorDefecto, delegado_id: delegadoId }
       : valoresPorDefecto,
   });
 
@@ -65,18 +67,22 @@ export default function EquipoDialog({ open, onClose, onGuardar, equipo, equipos
     } else {
       reset(
         esDelegado
-          ? { ...valoresPorDefecto, delegado_id: usuarioActual.id }
+          ? { ...valoresPorDefecto, delegado_id: delegadoId }
           : valoresPorDefecto
       );
       setLogoUrl('');
     }
     setErrorApi('');
-  }, [equipo, open, reset]);
+  }, [equipo, open, reset, delegadoId, esDelegado]);
 
   const handleGuardarInterno = async (datos) => {
     setErrorApi('');
     try {
-      await onGuardar({ ...datos, logo_url: logoUrl });
+      await onGuardar({
+        ...datos,
+        delegado_id: esDelegado ? delegadoId : datos.delegado_id,
+        logo_url: logoUrl,
+      });
     } catch (error) {
       setErrorApi(error.response?.data?.error || 'Error al guardar el equipo');
     }
@@ -84,11 +90,18 @@ export default function EquipoDialog({ open, onClose, onGuardar, equipo, equipos
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{equipo ? 'Editar equipo' : 'Nuevo equipo'}</DialogTitle>
+      <DialogTitle>
+        {equipo ? 'Editar equipo' : (esDelegado ? 'Inscribir equipo' : 'Nuevo equipo')}
+      </DialogTitle>
       <DialogContent>
         {errorApi && (
           <Alert severity="error" sx={{ my: 1.5 }}>
             {errorApi}
+          </Alert>
+        )}
+        {yaTieneEquipo && (
+          <Alert severity="warning" sx={{ my: 1.5 }}>
+            Ya cuentas con un equipo registrado. Cada delegado solo puede gestionar un equipo institucional. Si deseas realizar cambios, edítalo desde la tabla.
           </Alert>
         )}
         <ImageUpload
@@ -127,7 +140,7 @@ export default function EquipoDialog({ open, onClose, onGuardar, equipo, equipos
         {esDelegado ? (
           <TextField
             label="Delegado" fullWidth margin="normal" disabled
-            value={`${usuarioActual.nombre} ${usuarioActual.apellido} (${usuarioActual.email})`}
+            value={`${usuarioActual?.nombre || ''} ${usuarioActual?.apellido || ''} (${usuarioActual?.email || ''})`}
           />
         ) : (
           <Controller
@@ -150,7 +163,13 @@ export default function EquipoDialog({ open, onClose, onGuardar, equipo, equipos
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button variant="contained" onClick={handleSubmit(handleGuardarInterno)}>Guardar</Button>
+        <Button
+          variant="contained"
+          disabled={yaTieneEquipo}
+          onClick={handleSubmit(handleGuardarInterno)}
+        >
+          {equipo ? 'Guardar' : (esDelegado ? 'Inscribir Equipo' : 'Guardar')}
+        </Button>
       </DialogActions>
     </Dialog>
   );
